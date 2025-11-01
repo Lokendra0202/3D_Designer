@@ -20,11 +20,32 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex', height: '100vh', '@media (max-width: 768px)': { flexDirection: 'column' } }}>
-        <Box sx={{ flex: 1, '@media (max-width: 768px)': { height: '70vh' } }}>
+      <Box sx={{
+        display: 'flex',
+        height: '100vh',
+        '@media (max-width: 768px)': {
+          flexDirection: 'column',
+          height: '100vh'
+        }
+      }}>
+        <Box sx={{
+          flex: 1,
+          '@media (max-width: 768px)': {
+            height: '70vh',
+            minHeight: '400px'
+          }
+        }}>
           <Viewer />
         </Box>
-        <Box sx={{ '@media (max-width: 768px)': { height: '30vh', overflowY: 'auto' } }}>
+        <Box sx={{
+          width: 320,
+          '@media (max-width: 768px)': {
+            width: '100%',
+            height: '30vh',
+            overflowY: 'auto',
+            minHeight: '200px'
+          }
+        }}>
           <ControlPanel />
         </Box>
       </Box>

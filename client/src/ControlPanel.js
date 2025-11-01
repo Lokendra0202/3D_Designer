@@ -1,5 +1,5 @@
 import { Box, Typography, TextField, Button, Card, CardContent, List, ListItem, ListItemText, Select, MenuItem, FormControl, InputLabel, Divider, Switch, FormControlLabel } from '@mui/material';
-import { Add, Delete, GetApp, TableRestaurant, Chair, Bed, Wc, AcUnit } from '@mui/icons-material';
+import { Add, Delete, GetApp, TableRestaurant, Chair, Bed, Wc, AcUnit, Undo, Redo, CloudUpload } from '@mui/icons-material';
 import useStore from './store';
 
 const rotationPresets = [
@@ -10,74 +10,163 @@ const rotationPresets = [
 ];
 
 function ControlPanel() {
-  const { container, setContainerDimensions, setContainerMaterial, addElement, removeElement, updateElement, elements, selectedElement, selectElement, materials, colors, exportDesign, snapToGrid, toggleSnapToGrid, gridSize, setGridSize, snapToRotation, toggleSnapToRotation, rotationSnapAngle, setRotationSnapAngle } = useStore();
+  const { container, elements, setContainerDimensions, setContainerMaterial, addElement, removeElement, updateElement, selectedElement, selectElement, materials, colors, exportDesign, saveProgress, loadProgress, snapToGrid, toggleSnapToGrid, gridSize, setGridSize, snapToRotation, toggleSnapToRotation, rotationSnapAngle, setRotationSnapAngle, undo, redo, canUndo, canRedo } = useStore();
 
   const handleAddElement = (type) => {
-    let size, position, material, color;
+    let size, material, color;
     switch (type) {
       case 'door':
         size = [0.9, 2, 0.1];
-        position = [container.length / 2 - 0.05, 1, 0];
         material = 'wood';
         color = '#8B4513';
         break;
       case 'window':
         size = [1, 1, 0.1];
-        position = [0, 1.5, container.width / 2 - 0.05];
         material = 'glass';
         color = '#87CEEB';
         break;
       case 'partition':
         size = [0.1, container.height, container.width];
-        position = [0, container.height / 2, 0];
         material = 'wood';
         color = '#D2B48C';
         break;
       case 'shelf':
         size = [container.length, 0.1, container.width];
-        position = [0, 1, 0];
         material = 'wood';
         color = '#A0522D';
         break;
       case 'table':
         size = [1.5, 0.8, 1];
-        position = [0, 0.4, 0];
         material = 'wood';
         color = '#8B4513';
         break;
       case 'chair':
         size = [0.5, 1, 0.5];
-        position = [0, 0.5, 0];
         material = 'wood';
         color = '#D2B48C';
         break;
       case 'bed':
-        size = [2, 0.5, 1.5];
-        position = [0, 0.25, 0];
+        size = [1.8, 0.5, 1.5];
         material = 'fabric';
         color = '#FFFFFF';
         break;
       case 'toilet':
         size = [0.6, 0.8, 0.6];
-        position = [0, 0.4, 0];
         material = 'plastic';
         color = '#FFFFFF';
         break;
       case 'fan':
         size = [0.5, 0.1, 0.5];
-        position = [0, 2.5, 0];
         material = 'metal';
         color = '#C0C0C0';
         break;
+      case 'ac':
+        size = [1, 0.3, 0.3];
+        material = 'plastic';
+        color = '#FFFFFF';
+        break;
+      case 'sink':
+        size = [0.8, 0.9, 0.5];
+        material = 'plastic';
+        color = '#FFFFFF';
+        break;
+      case 'double_bed':
+        size = [1.8, 0.5, 1.8];
+        material = 'fabric';
+        color = '#FFFFFF';
+        break;
+      case 'dirty_window':
+        size = [1.2, 1.2, 0.1];
+        material = 'glass';
+        color = '#87CEEB';
+        break;
+      case 'kitchen_assets':
+        size = [1.5, 1, 0.5];
+        material = 'metal';
+        color = '#C0C0C0';
+        break;
+      case 'retro_tv':
+        size = [1, 0.6, 0.3];
+        material = 'plastic';
+        color = '#000000';
+        break;
+      case 'shower':
+        size = [1, 2, 1];
+        material = 'glass';
+        color = '#87CEEB';
+        break;
+      case 'sofa_large':
+        size = [1.5, 0.8, 0.8];
+        material = 'fabric';
+        color = '#8B4513';
+        break;
+      case 'switches':
+        size = [0.2, 0.1, 0.05];
+        material = 'plastic';
+        color = '#FFFFFF';
+        break;
+      case 'table_chairs':
+        size = [1.8, 0.8, 1.5];
+        material = 'wood';
+        color = '#8B4513';
+        break;
+      case 'toilet_alt':
+        size = [0.6, 0.8, 0.6];
+        material = 'plastic';
+        color = '#FFFFFF';
+        break;
+      case 'tube_light':
+        size = [1.2, 0.1, 0.1];
+        material = 'metal';
+        color = '#C0C0C0';
+        break;
+      case 'washing_machine':
+        size = [0.7, 1, 0.6];
+        material = 'metal';
+        color = '#FFFFFF';
+        break;
+      case 'science_research_table':
+        size = [1.5, 0.8, 1];
+        material = 'wood';
+        color = '#8B4513';
+        break;
+      case 'office_desk':
+        size = [1.2, 0.75, 0.6];
+        material = 'wood';
+        color = '#D2B48C';
+        break;
+      case 'square_recessed_led':
+        size = [0.3, 0.1, 0.3];
+        material = 'plastic';
+        color = '#FFFFFF';
+        break;
+      case 'sideboard_kitchen':
+        size = [1, 0.9, 0.4];
+        material = 'wood';
+        color = '#8B4513';
+        break;
+      case 'psx_wooden_chair':
+        size = [0.5, 1, 0.5];
+        material = 'wood';
+        color = '#D2B48C';
+        break;
+      case 'plastic_table':
+        size = [1, 0.75, 0.75];
+        material = 'plastic';
+        color = '#FFFFFF';
+        break;
+      case 'table_and_chair':
+        size = [1.5, 0.8, 1];
+        material = 'wood';
+        color = '#8B4513';
+        break;
       default:
         size = [1, 1, 1];
-        position = [0, 0, 0];
         material = materials[0];
         color = colors[0];
     }
     addElement({
       type,
-      position,
       size,
       material,
       color
@@ -96,8 +185,24 @@ function ControlPanel() {
   };
 
   return (
-    <Box sx={{ width: 320, p: 2, bgcolor: 'grey.100', height: '100vh', overflowY: 'auto' }}>
-      <Typography variant="h5" gutterBottom>Control Panel</Typography>
+    <Box sx={{
+      width: 320,
+      p: 2,
+      bgcolor: 'grey.100',
+      height: '100vh',
+      overflowY: 'auto',
+      '@media (max-width: 768px)': {
+        width: '100%',
+        p: 1,
+        height: 'auto',
+        minHeight: '100vh'
+      }
+    }}>
+      <Typography variant="h5" gutterBottom sx={{
+        '@media (max-width: 768px)': {
+          fontSize: '1.25rem'
+        }
+      }}>Control Panel</Typography>
 
       <Card sx={{ mb: 2 }}>
         <CardContent>
@@ -143,16 +248,67 @@ function ControlPanel() {
       <Card sx={{ mb: 2 }}>
         <CardContent>
           <Typography variant="h6">Add Elements</Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+          <Box sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 1,
+            '@media (max-width: 768px)': {
+              gap: 0.5,
+              '& .MuiButton-root': {
+                minWidth: 'auto',
+                padding: '6px 8px',
+                fontSize: '0.75rem'
+              }
+            }
+          }}>
+            <Button variant="contained" startIcon={<CloudUpload />} component="label">
+              Add Element
+              <input
+                type="file"
+                accept=".glb,.gltf"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const url = URL.createObjectURL(file);
+                    addElement({
+                      type: 'custom',
+                      modelUrl: url,
+                      size: [1, 1, 1],
+                      material: 'custom',
+                      color: '#ffffff'
+                    });
+                  }
+                }}
+              />
+            </Button>
             <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('door')}>Door</Button>
             <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('window')}>Window</Button>
-            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('partition')}>Partition</Button>
-            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('shelf')}>Shelf</Button>
             <Button variant="contained" startIcon={<TableRestaurant />} onClick={() => handleAddElement('table')}>Table</Button>
             <Button variant="contained" startIcon={<Chair />} onClick={() => handleAddElement('chair')}>Chair</Button>
             <Button variant="contained" startIcon={<Bed />} onClick={() => handleAddElement('bed')}>Bed</Button>
             <Button variant="contained" startIcon={<Wc />} onClick={() => handleAddElement('toilet')}>Toilet</Button>
             <Button variant="contained" startIcon={<AcUnit />} onClick={() => handleAddElement('fan')}>Fan</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('ac')}>AC</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('sink')}>Sink</Button>
+            <Button variant="contained" startIcon={<Bed />} onClick={() => handleAddElement('double_bed')}>Double Bed</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('dirty_window')}>Dirty Window</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('kitchen_assets')}>Kitchen Assets</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('retro_tv')}>Retro TV</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('shower')}>Shower</Button>
+            <Button variant="contained" startIcon={<Chair />} onClick={() => handleAddElement('sofa_large')}>Large Sofa</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('switches')}>Switches</Button>
+            <Button variant="contained" startIcon={<TableRestaurant />} onClick={() => handleAddElement('table_chairs')}>Table & Chairs</Button>
+            <Button variant="contained" startIcon={<Wc />} onClick={() => handleAddElement('toilet_alt')}>Toilet Alt</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('tube_light')}>Tube Light</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('washing_machine')}>Washing Machine</Button>
+            <Button variant="contained" startIcon={<TableRestaurant />} onClick={() => handleAddElement('science_research_table')}>Science Research Table</Button>
+            <Button variant="contained" startIcon={<TableRestaurant />} onClick={() => handleAddElement('office_desk')}>Office Desk</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('square_recessed_led')}>Square Recessed LED</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => handleAddElement('sideboard_kitchen')}>Sideboard Kitchen</Button>
+            <Button variant="contained" startIcon={<Chair />} onClick={() => handleAddElement('psx_wooden_chair')}>PSX Wooden Chair</Button>
+            <Button variant="contained" startIcon={<TableRestaurant />} onClick={() => handleAddElement('plastic_table')}>Plastic Table</Button>
+            <Button variant="contained" startIcon={<TableRestaurant />} onClick={() => handleAddElement('table_and_chair')}>Table and Chair</Button>
           </Box>
         </CardContent>
       </Card>
@@ -178,6 +334,7 @@ function ControlPanel() {
             <CardContent>
               <Typography variant="h6">Edit Selected Element</Typography>
               <Box>
+                <TextField label="Scale" type="number" value={el.scale || 1} onChange={(e) => updateElement(selectedElement, { scale: parseFloat(e.target.value) })} fullWidth margin="normal" inputProps={{ min: 0.1, max: 5, step: 0.1 }} />
                 <TextField label="Size X" type="number" value={el.size[0]} onChange={(e) => updateElement(selectedElement, { size: [parseFloat(e.target.value), el.size[1], el.size[2]] })} fullWidth margin="normal" />
                 <TextField label="Size Y" type="number" value={el.size[1]} onChange={(e) => updateElement(selectedElement, { size: [el.size[0], parseFloat(e.target.value), el.size[2]] })} fullWidth margin="normal" />
                 <TextField label="Size Z" type="number" value={el.size[2]} onChange={(e) => updateElement(selectedElement, { size: [el.size[0], el.size[1], parseFloat(e.target.value)] })} fullWidth margin="normal" />
@@ -252,7 +409,42 @@ function ControlPanel() {
         </CardContent>
       </Card>
 
+      <Card sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography variant="h6">Undo/Redo</Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button variant="outlined" startIcon={<Undo />} onClick={undo} disabled={!canUndo()}>Undo</Button>
+            <Button variant="outlined" startIcon={<Redo />} onClick={redo} disabled={!canRedo()}>Redo</Button>
+          </Box>
+        </CardContent>
+      </Card>
+
+      <Card sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography variant="h6">Save/Load Progress</Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button variant="contained" onClick={saveProgress} fullWidth>Save Progress</Button>
+            <Button variant="outlined" component="label" fullWidth>
+              Load Progress
+              <input
+                type="file"
+                accept=".json"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    loadProgress(file);
+                  }
+                }}
+              />
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+
       <Button variant="contained" startIcon={<GetApp />} onClick={handleExport} fullWidth>Export Design</Button>
+
+      <Button variant="contained" startIcon={<GetApp />} onClick={() => window.takeScreenshot && window.takeScreenshot()} fullWidth>Take Screenshot</Button>
     </Box>
   );
 }
